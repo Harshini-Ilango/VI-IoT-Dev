@@ -1,0 +1,34 @@
+===================================================================
+DEBUGGING PLAN: CASE STUDY 5.3 (hostapd SIGSEGV / Vendor IE Patch)
+===================================================================
+
+[STEP 1] FAULT TRACE & ISOLATION
+- Action: Check for userspace vs. kernel crash.
+- Command: Run 'ls -l /tmp/core.hostapd.*' to locate the core dump file.
+- Reason: Since dmesg is clean, the crash is isolated to userspace (SIGSEGV).
+
+[STEP 2] GDB BACKTRACE ANALYSIS
+- Action: Load the core dump into GDB using the unstripped binary and sysroot.
+- Command: gdb ./hostapd /tmp/core.hostapd.<pid>
+- Target: Execute the 'bt' (backtrace) command inside GDB to find the crashing frame.
+- Expected Finding: Look for a frame involving parsing vendor IEs where an unchecked IE length field is being passed directly into a 'memcpy()' function, causing a heap/stack buffer overflow.
+
+[STEP 3] REGRESSION & REPRODUCTION
+- Action: Utilize the packet-crafting unit test framework from Lab 4.
+- Method: Send a malformed, truncated vendor IE payload (where the length header claims a high number like 255, but the actual payload is truncated to 2 bytes). 
+- Automation: If the exact commit is unknown, run 'git bisect' between the last stable tag and HEAD to isolate the exact commit that introduced the patch.
+
+[STEP 4] PROPOSED FIX & PATCHING
+- Logic: Implement a strict boundary check prior to copying memory.
+- Code Fix:
+    if (ie_len > MAX_VENDOR_IE_SIZE || ie_len < MIN_IE_SIZE) {
+        wpa_printf(MSG_ERROR, "Malformed IE length detected: %d", ie_len);
+        return -1; 
+    }
+    memcpy(dest_buffer, ie_data, ie_len);
+- Deliverable: Generate the fix patch using 'git format-patch -1 HEAD'.
+
+[STEP 5] ROOT CAUSE ANALYSIS (LOAD VS. RACE)
+- Conclusion: This is a pure logic bug (buffer overflow due to missing validation), not a race condition. 
+- Reason: 'hostapd' uses a single-threaded event loop ('eloop'). The reason it only appears under conference-room density is statistical: more users increase the probability of a client device with a specific chipset sending that rare, malformed vendor IE.
+
