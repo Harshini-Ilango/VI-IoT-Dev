@@ -1,0 +1,35 @@
+module device-interface-config {
+
+    namespace "http://example.com/device-interface-config";
+    prefix "ifc";
+
+    container interfaces {
+
+        list interface {
+            key "name";
+
+            leaf name {
+                type string;
+            }
+
+            leaf description {
+                type string;
+            }
+
+            leaf mtu {
+                type uint16;
+            }
+
+            leaf admin-status {
+                type enumeration {
+                    enum enable;
+                    enum disable;
+                }
+            }
+
+            leaf speed {
+                type uint32;
+            }
+        }
+    }
+}

@@ -1,0 +1,60 @@
+module snmp-config {
+
+    namespace "http://example.com/snmp-config";
+    prefix "snmp";
+
+    organization
+        "Example Organization";
+
+    description
+        "YANG model for SNMP configuration.";
+
+    container snmp-server {
+
+        description
+            "SNMP server configuration.";
+
+        list community {
+
+            key "name";
+
+            description
+                "SNMP community configuration.";
+
+            leaf name {
+
+                type string;
+
+                description
+                    "SNMP community name.";
+            }
+
+            leaf access {
+
+                type enumeration {
+
+                    enum ro {
+                        description
+                            "Read-only access.";
+                    }
+
+                    enum rw {
+                        description
+                            "Read-write access.";
+                    }
+                }
+
+                description
+                    "Access level for the SNMP community.";
+            }
+        }
+
+        leaf location {
+
+            type string;
+
+            description
+                "Physical location of the device.";
+        }
+    }
+}

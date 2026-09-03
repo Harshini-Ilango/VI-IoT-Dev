@@ -1,0 +1,24 @@
+module device-routing-config {
+
+    namespace "http://example.com/device-routing-config";
+    prefix "rt";
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    container routing {
+
+        list static-route {
+            key "destination";
+
+            leaf destination {
+                type inet:ipv4-prefix;
+            }
+
+            leaf next-hop {
+                type inet:ipv4-address;
+            }
+        }
+    }
+}

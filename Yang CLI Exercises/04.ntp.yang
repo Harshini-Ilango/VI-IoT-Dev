@@ -1,0 +1,55 @@
+module ntp-config {
+
+    namespace "http://example.com/ntp-config";
+    prefix "ntp";
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    organization
+        "Example Organization";
+
+    description
+        "YANG model for NTP configuration.";
+
+    container ntp {
+
+        description
+            "NTP configuration.";
+
+        list server {
+
+            key "address";
+
+            description
+                "List of NTP servers.";
+
+            leaf address {
+                type inet:ip-address;
+
+                description
+                    "IP address of the NTP server.";
+            }
+        }
+
+        leaf source-interface {
+
+            type string;
+
+            description
+                "Interface used as the source for NTP traffic.";
+        }
+
+        leaf authenticate {
+
+            type boolean;
+
+            default false;
+
+            description
+                "Enable or disable NTP authentication.";
+        }
+    }
+}
+
